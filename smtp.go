@@ -52,7 +52,7 @@ func NewDialer(host string, port int, username, password string) *Dialer {
 func (d *Dialer) Dial() (s SendCloser, err error) {
 	conn, err := netDialTimeout("tcp", addr(d.Host, d.Port), 10*time.Second)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	if d.SSL {
@@ -61,7 +61,7 @@ func (d *Dialer) Dial() (s SendCloser, err error) {
 
 	c, err := smtpNewClient(conn, d.Host)
 	if err != nil {
-		return nil, err
+		return
 	}
 	defer func() {
 		if err != nil {
