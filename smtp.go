@@ -47,14 +47,6 @@ func NewDialer(host string, port int, username, password string) *Dialer {
 	}
 }
 
-// NewPlainDialer returns a new SMTP Dialer. The given parameters are used to
-// connect to the SMTP server.
-//
-// Deprecated: Use NewDialer instead.
-func NewPlainDialer(host string, port int, username, password string) *Dialer {
-	return NewDialer(host, port, username, password)
-}
-
 // Dial dials and authenticates to an SMTP server. The returned SendCloser
 // should be closed when done using it.
 func (d *Dialer) Dial() (SendCloser, error) {

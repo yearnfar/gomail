@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"io"
-	"io/ioutil"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -702,7 +701,7 @@ func getBoundaries(t *testing.T, count int, m string) []string {
 	return []string{""}
 }
 
-var boundaryRegExp = regexp.MustCompile("boundary=(\\w+)")
+var boundaryRegExp = regexp.MustCompile(`boundary=(\w+)`)
 
 func mockCopyFile(name string) (string, FileSetting) {
 	return name, SetCopyFunc(func(w io.Writer) error {
@@ -718,7 +717,7 @@ func mockCopyFileWithHeader(m *Message, name string, h map[string][]string) (str
 
 func BenchmarkFull(b *testing.B) {
 	discardFunc := SendFunc(func(from string, to []string, m io.WriterTo) error {
-		_, err := m.WriteTo(ioutil.Discard)
+		_, err := m.WriteTo(io.Discard)
 		return err
 	})
 
