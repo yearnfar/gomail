@@ -49,7 +49,7 @@ func NewDialer(host string, port int, username, password string) *Dialer {
 
 // Dial dials and authenticates to an SMTP server. The returned SendCloser
 // should be closed when done using it.
-func (d *Dialer) Dial() (SendCloser, error) {
+func (d *Dialer) Dial() (s SendCloser, err error) {
 	conn, err := netDialTimeout("tcp", addr(d.Host, d.Port), 10*time.Second)
 	if err != nil {
 		return nil, err
@@ -63,18 +63,22 @@ func (d *Dialer) Dial() (SendCloser, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer func() {
+		if err != nil {
+			c.Close()
+		}
+	}()
 
 	if d.LocalName != "" {
-		if err := c.Hello(d.LocalName); err != nil {
-			return nil, err
+		if err = c.Hello(d.LocalName); err != nil {
+			return
 		}
 	}
 
 	if !d.SSL {
 		if ok, _ := c.Extension("STARTTLS"); ok {
-			if err := c.StartTLS(d.tlsConfig()); err != nil {
-				c.Close()
-				return nil, err
+			if err = c.StartTLS(d.tlsConfig()); err != nil {
+				return
 			}
 		}
 	}
@@ -98,8 +102,7 @@ func (d *Dialer) Dial() (SendCloser, error) {
 
 	if d.Auth != nil {
 		if err = c.Auth(d.Auth); err != nil {
-			c.Close()
-			return nil, err
+			return
 		}
 	}
 
